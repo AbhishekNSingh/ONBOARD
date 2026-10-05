@@ -1,36 +1,41 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+    },
+    password: { type: String, required: true, select: false  },
+    contact: { type: String, required: false },
+    name: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "manager", "employee"],
+      default: "employee",
+    },
+    manager: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+    baseSalary: { type: Number, default: 0 },
   },
-  password: { type: String, required: true },
-  contact: { type: String, required: false },
-  name: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: String,
-    enum: ["employee", "manager", "admin"],
-    default: "employee",
-  },
+  { timestamps: true },
+);
+
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  const hash = await bcrypt.hash(this.password, 10);
+  this.password = hash;
 });
 
+userSchema.methods.comparePassword = async function (password) {
+  return bcrypt.compare(password, this.password);
+};
 
-userSchema.pre("save",async function(){
-    if(!this.isModified("password")) return;
-    const hash = await bcrypt.hash(this.password,10);
-    this.password = hash;
-})
-
-userSchema.methods.comparePassword =  async function (password) {
-    return bcrypt.compare(password,this.password)
-}
-
-const userModel = mongoose.model("user",userSchema);
+const userModel = mongoose.model("user", userSchema);
 
 export default userModel;

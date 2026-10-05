@@ -3,11 +3,11 @@ import jwt from "jsonwebtoken";
 import { config } from "../config/config.js";
 
 export const register = async (req, res) => {
-  const { email, password, contact, name, isManager } = req.body;
+  const { email, password, contact, name } = req.body;
 
   try {
     const existingUser = await userModel.findOne({
-      $or: [{ email }, { contact }],
+      $or: [{ email:email.toLowerCase() }, { contact }],
     });
 
     if (existingUser) {
@@ -20,14 +20,13 @@ export const register = async (req, res) => {
       email,
       password,
       contact,
-      name,
-      role: isManager ? "manager" : "employee",
+      name
     });
 
     const token = await jwt.sign({ id: user._id }, config.JWT_SECRET, {
       expiresIn: "7d",
     });
-    res.cookie("token", token);
+    res.cookie("token", token, { httpOnly: true, sameSite: "lax" });
     res.status(200).json({
       message: "user registered successfully",
       success: true,
@@ -46,33 +45,55 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email });
+    const user = await userModel
+      .findOne({ email: email.toLowerCase() })
+      .select("+password");
 
-  if (!user) {
-    return res.status(400).json({ message: " user not found" });
+    // Same message for both cases, so attackers can't tell which part was wrong
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    const token = jwt.sign({ id: user._id }, config.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    res.cookie("token", token, { httpOnly: true, sameSite: "lax" });
+
+    res.status(200).json({
+      message: "user logged in successfully",
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        contact: user.contact,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
   }
+};
 
-  const isMatch = await user.comparePassword(password);
+export const getMe = async (req,res) => {
+  const user = req.user;
 
-  if (!isMatch) {
-    return res.status(400).json({ message: "Invalid credentials" });
+  if(!user){
+    return res.status(401).json({ message: "Not logged in " })
   }
-
-  const token = await jwt.sign({ id: user._id }, config.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-  res.cookie("token", token);
-  res.status(200).json({
-    message: "user logged in successfully",
-    success: true,
-    user: {
+  return res.status(200).json({
+    message:"User fetched successfully",
+    success:true,
+    user:{
       id: user._id,
       email: user.email,
       contact: user.contact,
       name: user.name,
-      role: user.role,
-    },
-  });
-};
+      role: user.role
+    }
+  })
+}
