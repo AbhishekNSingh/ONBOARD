@@ -8,7 +8,7 @@ import morgan from "morgan";
 // import Routes
 import authRouter from "./routes/auth.routes.js";
 import userRouter  from "./routes/user.routes.js";
-
+import attendanceRouter from "./routes/attendance.routes.js";
 
 
 
@@ -23,6 +23,7 @@ app.use(morgan("dev"));
 // ROUTES
 app.use("/api/auth",authRouter);
 app.use("/api/users",userRouter);
+app.use("/api/attendance",attendanceRouter)
 
 
 

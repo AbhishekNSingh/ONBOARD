@@ -57,3 +57,31 @@ export const updateUserRole = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const assignManager = async (req, res) => {
+  try {
+    const { managerId } = req.body;
+
+    const employee = await userModel.findById(req.params.id);
+    if (!employee || employee.role !== "employee") {
+      return res
+        .status(400)
+        .json({ message: "only employee can be assigned to some manager" });
+    }
+
+    const manager = await userModel.findById(managerId);
+    if (!manager || manager.role !== "manager") {
+      return res.status(400).json({ message: "User is not a manager" });
+    }
+
+    employee.manager = manager._id;
+    await employee.save();
+
+    return res
+      .status(200)
+      .json({ message: `${employee.name} will now report to ${manager.name}` });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
