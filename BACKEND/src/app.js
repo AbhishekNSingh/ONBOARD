@@ -9,7 +9,7 @@ import morgan from "morgan";
 import authRouter from "./routes/auth.routes.js";
 import userRouter  from "./routes/user.routes.js";
 import attendanceRouter from "./routes/attendance.routes.js";
-
+import leaveRouter from "./routes/leave.routes.js"
 
 
 const app = express();
@@ -24,7 +24,7 @@ app.use(morgan("dev"));
 app.use("/api/auth",authRouter);
 app.use("/api/users",userRouter);
 app.use("/api/attendance",attendanceRouter)
-
+app.use("/api/leaves",leaveRouter)
 
 
 
