@@ -92,8 +92,6 @@ export const leaveDecision = async (req, res) => {
       });
     }
 
-    
-
     if (leave.status !== "pending") {
       return res.status(400).json({
         message: "Already decided",
@@ -101,9 +99,14 @@ export const leaveDecision = async (req, res) => {
     }
 
     if (leave.approverRole === "manager") {
-      if (!leave.manager || leave.manager.toString() !== req.user._id.toString()) {
-          return res.status(403).json({ message: "You are not allowed to decide" });
-        }
+      if (
+        !leave.manager ||
+        leave.manager.toString() !== req.user._id.toString()
+      ) {
+        return res
+          .status(403)
+          .json({ message: "You are not allowed to decide" });
+      }
     } else {
       if (req.user.role !== "admin") {
         return res
@@ -111,8 +114,6 @@ export const leaveDecision = async (req, res) => {
           .json({ message: "You are not allowed to decide" });
       }
     }
-
-    
 
     leave.status = status;
     leave.decidedBy = req.user._id;
@@ -133,35 +134,51 @@ export const leaveDecision = async (req, res) => {
   }
 };
 
+export const getPendingLeaves = async (req, res) => {
+  try {
+    const filter = { status: "pending" };
 
-export const getPendingLeaves = async(req,res) =>{
-    try{
-
-        const filter = {status : "pending"}
-
-
-        if(req.user.role === "manager"){
-            filter.approverRole = "manager";
-            filter.manager = req.user._id;
-        }else{
-            filter.approverRole = "admin"
-        }
-
-        const leaves = await leaveModel
-            .find(filter)
-            .populate("requester", "name email")
-            .sort({createdAt: -1})
-
-        return res.status(200).json({
-            message:"leaves fetched successfully",
-            success:true,
-            leaves
-        })
+    if (req.user.role === "manager") {
+      filter.approverRole = "manager";
+      filter.manager = req.user._id;
+    } else {
+      filter.approverRole = "admin";
     }
-    catch(err){
-        console.log(err);
+
+    const leaves = await leaveModel
+      .find(filter)
+      .populate("requester", "name email")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "leaves fetched successfully",
+      success: true,
+      leaves,
+    });
+  } catch (err) {
+    console.log(err);
     return res.status(500).json({
       message: "Server error",
     });
-    }
-}
+  }
+};
+
+export const getMyLeaves = async (req, res) => {
+  try {
+    const leaves = await leaveModel
+      .find({ requester: req.user.id })
+      .populate("decidedBy", "name")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "leaves fetched successfully",
+      success: true,
+      leaves,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
