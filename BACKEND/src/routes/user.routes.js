@@ -6,6 +6,7 @@ import {
   getAllUsers,
   updateUserRole,
   assignManager,
+  setBaseSalary
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -18,6 +19,7 @@ userRouter.get("/", getAllUsers);
 userRouter.patch("/:id/role", updateUserRole);
 
 userRouter.patch("/:id/manager", assignManager);
+userRouter.patch("/:id/salary", setBaseSalary);
 
 
 export default userRouter;

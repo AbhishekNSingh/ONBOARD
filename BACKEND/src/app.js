@@ -5,13 +5,15 @@ import morgan from "morgan";
 
 
 
-// import Routes
+//  ------ import Routes --------
 import authRouter from "./routes/auth.routes.js";
 import userRouter  from "./routes/user.routes.js";
 import attendanceRouter from "./routes/attendance.routes.js";
 import leaveRouter from "./routes/leave.routes.js"
+import bonusRouter from "./routes/bonus.routes.js"
 
 
+// ------ default middlewares --------
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -20,12 +22,12 @@ app.use(morgan("dev"));
 
 
 
-// ROUTES
+// ------  Routes    --------
 app.use("/api/auth",authRouter);
 app.use("/api/users",userRouter);
 app.use("/api/attendance",attendanceRouter)
 app.use("/api/leaves",leaveRouter)
-
+app.use("/api/bonuses",bonusRouter)
 
 
 export default app;

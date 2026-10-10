@@ -1,4 +1,5 @@
 import userModel from "../models/user.model.js";
+import mongoose from "mongoose";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -80,6 +81,48 @@ export const assignManager = async (req, res) => {
     return res
       .status(200)
       .json({ message: `${employee.name} will now report to ${manager.name}` });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const setBaseSalary = async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid id" });
+    }
+    const { baseSalary } = req.body;
+    if (!Number.isFinite(baseSalary) || baseSalary < 0) {
+      return res
+        .status(400)
+        .json({ message: "Salary must be a number, 0 or more" });
+    }
+
+    const user = await userModel.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (user.role === "admin") {
+      return res.status(400).json({
+        message: "Admin does not have a salary",
+      });
+    }
+
+    user.baseSalary = baseSalary;
+    await user.save();
+    return res.status(200).json({
+      message: "user baseSalary is updated successfully",
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        baseSalary: user.baseSalary,
+      },
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error" });

@@ -72,7 +72,6 @@ export const getMyAttendance = async (req, res) => {
     const records = await attendanceModel
       .find({ employee: req.user._id })
       .select("date status")
-      // .populate("markedBy", "name")
       .sort({ date: -1 });
 
     return res.status(200).json({
