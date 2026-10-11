@@ -11,7 +11,7 @@ import userRouter  from "./routes/user.routes.js";
 import attendanceRouter from "./routes/attendance.routes.js";
 import leaveRouter from "./routes/leave.routes.js"
 import bonusRouter from "./routes/bonus.routes.js"
-
+import advanceRouter from "./routes/advance.routes.js"
 
 // ------ default middlewares --------
 const app = express();
@@ -28,6 +28,9 @@ app.use("/api/users",userRouter);
 app.use("/api/attendance",attendanceRouter)
 app.use("/api/leaves",leaveRouter)
 app.use("/api/bonuses",bonusRouter)
+app.use("/api/advances",advanceRouter)
+
+
 
 
 export default app;
