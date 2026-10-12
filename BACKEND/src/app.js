@@ -12,6 +12,7 @@ import attendanceRouter from "./routes/attendance.routes.js";
 import leaveRouter from "./routes/leave.routes.js"
 import bonusRouter from "./routes/bonus.routes.js"
 import advanceRouter from "./routes/advance.routes.js"
+import salaryRouter from "./routes/salary.routes.js"
 
 // ------ default middlewares --------
 const app = express();
@@ -29,7 +30,7 @@ app.use("/api/attendance",attendanceRouter)
 app.use("/api/leaves",leaveRouter)
 app.use("/api/bonuses",bonusRouter)
 app.use("/api/advances",advanceRouter)
-
+app.use("/api/salaries",salaryRouter)
 
 
 
