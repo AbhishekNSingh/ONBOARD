@@ -4,8 +4,9 @@ import userModel from "../models/user.model.js";
 import salaryModel from "../models/salary.model.js";
 import bonusModel from "../models/bonus.model.js";
 import advanceModel from "../models/advance.model.js";
+import paymentModel from "../models/payment.model.js";
 
-const getSalarySummary = async (employee, month) => {
+export const getSalarySummary = async (employee, month) => {
   if (!employee.baseSalary || employee.baseSalary <= 0) {
     throw new Error("SALARY_NOT_SET");
   }
@@ -18,11 +19,12 @@ const getSalarySummary = async (employee, month) => {
 
   const bonuses = await bonusModel.find({ employee: employee._id, month });
   const advances = await advanceModel.find({ employee: employee._id, month });
+  const payments = await paymentModel.find({ employee: employee._id, month, status: "paid" });
 
   const bonusTotal = bonuses.reduce((sum, b) => sum + b.amount, 0);
   const advanceTotal = advances.reduce((sum, a) => sum + a.amount, 0);
 
-  const paid = 0;
+  const paid = payments.reduce((sum, p) => sum + p.amount, 0);
   const due = salary.baseSalary + bonusTotal - advanceTotal - paid;
 
   return {
