@@ -15,6 +15,7 @@ import advanceRouter from "./routes/advance.routes.js"
 import salaryRouter from "./routes/salary.routes.js"
 import paymentRouter from "./routes/payment.routes.js"
 import performanceRouter from "./routes/performance.routes.js"
+import dashboardRouter from "./routes/dashboard.routes.js"
 
 // ------ default middlewares --------
 const app = express();
@@ -35,6 +36,7 @@ app.use("/api/advances",advanceRouter)
 app.use("/api/salaries",salaryRouter)
 app.use("/api/payments",paymentRouter);
 app.use("/api/performances",performanceRouter);
+app.use("/api/dashboard",dashboardRouter);
 
 
 

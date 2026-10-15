@@ -1,4 +1,5 @@
 import userModel from "../models/user.model.js";
+import leaveModel from "../models/leave.model.js";
 import mongoose from "mongoose";
 
 export const getAllUsers = async (req, res) => {
@@ -77,6 +78,10 @@ export const assignManager = async (req, res) => {
 
     employee.manager = manager._id;
     await employee.save();
+    await leaveModel.updateMany(
+      { requester: employee._id, status: "pending", approverRole: "manager" },
+      { manager: manager._id },
+    );
 
     return res
       .status(200)
