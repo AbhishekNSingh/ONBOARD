@@ -183,5 +183,38 @@ export const getMyLeaves = async (req, res) => {
   }
 };
 
+export const getLeavesTaken = async (req, res) => {
+  try {
+    const year = String(req.query.year || new Date().getFullYear());
+
+    if (!/^\d{4}$/.test(String(year).trim())) {
+      return res.status(400).json({
+        message: "Not a valid year",
+      });
+    }
+
+    const leaves = await leaveModel.find({
+      requester: req.user.id,
+      status: "approved",
+      fromDate: { $regex: "^" + year },
+    });
+
+    const totalDays = leaves.reduce((sum, l) => {
+      const days = (new Date(l.toDate) - new Date(l.fromDate)) / 86400000 + 1;
+      return sum + days;
+    }, 0);
+
+    return res.status(200).json({
+      message: "Leaves taken fetched successfully",
+      success: true,
+      year,
+      totalDays,
+      requests: leaves.length,
+    });
 
 
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: " Server error" });
+  }
+};
