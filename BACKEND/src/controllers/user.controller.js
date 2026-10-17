@@ -28,6 +28,10 @@ export const updateUserRole = async (req, res) => {
       return res.status(400).json({ message: "Invalid role" });
     }
 
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid employee id" });
+    }
+
     if (req.params.id === req.user.id.toString()) {
       return res
         .status(400)
@@ -63,6 +67,9 @@ export const updateUserRole = async (req, res) => {
 export const assignManager = async (req, res) => {
   try {
     const { managerId } = req.body;
+    if (!mongoose.isValidObjectId(managerId)) {
+          return res.status(400).json({ message: "Invalid employee id" });
+        }
 
     const employee = await userModel.findById(req.params.id);
     if (!employee || employee.role !== "employee") {

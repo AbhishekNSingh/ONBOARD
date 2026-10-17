@@ -1,6 +1,9 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import cors from "cors";
+import helmet from "helmet";
+import { config } from "./config/config.js";
 
 
 
@@ -19,6 +22,8 @@ import dashboardRouter from "./routes/dashboard.routes.js"
 
 // ------ default middlewares --------
 const app = express();
+app.use(cors({ origin: config.CLIENT_URL, credentials: true }));
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
@@ -39,5 +44,10 @@ app.use("/api/performances",performanceRouter);
 app.use("/api/dashboard",dashboardRouter);
 
 
+
+app.use((err, req, res, next) => {
+  console.log(err);
+  res.status(500).json({ message: "Server error" });
+});
 
 export default app;

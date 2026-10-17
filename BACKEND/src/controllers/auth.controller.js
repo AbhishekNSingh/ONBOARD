@@ -7,7 +7,7 @@ export const register = async (req, res) => {
 
   try {
     const existingUser = await userModel.findOne({
-      $or: [{ email:email.toLowerCase() }, { contact }],
+      $or: [{ email: email.toLowerCase() }, { contact }],
     });
 
     if (existingUser) {
@@ -20,14 +20,19 @@ export const register = async (req, res) => {
       email,
       password,
       contact,
-      name
+      name,
     });
 
     const token = await jwt.sign({ id: user._id }, config.JWT_SECRET, {
       expiresIn: "7d",
     });
-    res.cookie("token", token, { httpOnly: true, sameSite: "lax" });
-    res.status(200).json({
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    res.status(201).json({
       message: "user registered successfully",
       success: true,
       user: {
@@ -60,7 +65,12 @@ export const login = async (req, res) => {
     const token = jwt.sign({ id: user._id }, config.JWT_SECRET, {
       expiresIn: "7d",
     });
-    res.cookie("token", token, { httpOnly: true, sameSite: "lax" });
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({
       message: "user logged in successfully",
@@ -79,21 +89,28 @@ export const login = async (req, res) => {
   }
 };
 
-export const getMe = async (req,res) => {
+
+export const logOut = async(req,res) => {
+  res.clearCookie("token", { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production" })
+  return res.status(200).json({ message: "Logged out", success: true });
+}
+
+
+export const getMe = async (req, res) => {
   const user = req.user;
 
-  if(!user){
-    return res.status(401).json({ message: "Not logged in " })
+  if (!user) {
+    return res.status(401).json({ message: "Not logged in " });
   }
   return res.status(200).json({
-    message:"User fetched successfully",
-    success:true,
-    user:{
+    message: "User fetched successfully",
+    success: true,
+    user: {
       id: user._id,
       email: user.email,
       contact: user.contact,
       name: user.name,
-      role: user.role
-    }
-  })
-}
+      role: user.role,
+    },
+  });
+};
