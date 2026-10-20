@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import themeReducer from "../features/shared/state/theme.slice";
 import authReducer from "../features/auth/state/auth.slice"
+import dashboardReducer from "../features/dashboard/state/dashboard.slice";
 
 export const store = configureStore({
   reducer: {
     theme: themeReducer,
-    auth:authReducer
+    auth:authReducer,
+    dashboard: dashboardReducer,
     },
 });

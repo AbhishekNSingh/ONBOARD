@@ -3,6 +3,7 @@ import Login from "../features/auth/pages/Login";
 import Register from "../features/auth/pages/Register";
 import Protected from "../features/auth/components/Protected";
 import AppLayout from "./AppLayout";
+import ComponentPreview from "../features/shared/pages/ComponentPreview";
 import EmployeeDashboard from "../features/dashboard/pages/EmployeeDashboard";
 import ManagerDashboard from "../features/dashboard/pages/ManagerDashboard";
 import AdminDashboard from "../features/dashboard/pages/AdminDashboard";
@@ -17,7 +18,10 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppLayout />,
-        children: [{ path: "/employee", element: <EmployeeDashboard /> }],
+        children: [{ path: "/employee", element: <EmployeeDashboard /> },
+        { path: "/employee/preview", element: <ComponentPreview /> },
+
+        ],
       },
     ],
   },
