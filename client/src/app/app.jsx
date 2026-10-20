@@ -14,8 +14,39 @@ const App = () => {
   }, [mode]);
 
   useEffect(() => {
-  checkAuth();
-}, [checkAuth]);
+    checkAuth();
+  }, [checkAuth]);
+
+
+  // useEffect(() => {
+  //   const onPageShow = (event) => {
+  //     if (event.persisted) {
+  //       checkAuth();
+  //     }
+  //   };
+
+  //   window.addEventListener("pageshow", onPageShow);
+  //   return () => window.removeEventListener("pageshow", onPageShow);
+  // }, [checkAuth]);
+
+
+  useEffect(() => {
+    const onPageShow = (event) => {
+      if (event.persisted) checkAuth();
+    };
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") checkAuth();
+    };
+
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [checkAuth]);
 
   return <RouterProvider router={router} />;
 };

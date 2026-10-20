@@ -1,2 +1,8 @@
-const EmployeeDashboard = () => <h1 className="p-8 font-serif text-4xl">Employee dashboard</h1>;
+const EmployeeDashboard = () => (
+  <div>
+    <h1 className="text-2xl font-semibold text-ink">Dashboard</h1>
+    <p className="mt-1 text-sm text-ink-muted">Your overview will appear here.</p>
+  </div>
+);
+
 export default EmployeeDashboard;
