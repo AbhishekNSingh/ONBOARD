@@ -21,6 +21,7 @@ export const navItems = {
     { label: "Dashboard", to: "/manager", icon: LayoutDashboard },
     { label: "My team", to: "/manager/team", icon: Users },
     { label: "Leave inbox", to: "/manager/leaves", icon: Inbox },
+    { label: "My leaves", to: "/manager/my-leaves", icon: PlaneTakeoff },
     { label: "Payroll", to: "/manager/payroll", icon: Wallet },
     { label: "Performance", to: "/manager/performance", icon: TrendingUp },
   ],

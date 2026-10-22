@@ -8,6 +8,8 @@ import EmployeeDashboard from "../features/dashboard/pages/EmployeeDashboard";
 import ManagerDashboard from "../features/dashboard/pages/ManagerDashboard";
 import AdminDashboard from "../features/dashboard/pages/AdminDashboard";
 import LeavesPage from "../features/leaves/pages/LeavesPage";
+import LeaveInbox from "../features/leaves/pages/LeaveInbox";
+import UsersPage from "../features/users/pages/UsersPage";
 
 
 export const router = createBrowserRouter([
@@ -36,7 +38,9 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { path: "/manager", element: <ManagerDashboard /> }
+          { path: "/manager", element: <ManagerDashboard /> },
+          { path: "/manager/my-leaves", element: <LeavesPage /> },
+          { path: "/manager/leaves", element: <LeaveInbox title="Leave inbox" subtitle="Requests from your team" /> },
         ],
       },
     ],
@@ -47,7 +51,11 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppLayout />,
-        children: [{ path: "/admin", element: <AdminDashboard /> }],
+        children: [
+          { path: "/admin", element: <AdminDashboard /> },
+          { path: "/admin/users", element: <UsersPage /> },
+          { path: "/admin/leaves", element: <LeaveInbox title="Leave requests" subtitle="Requests from managers" /> },
+        ],
       },
     ],
   },

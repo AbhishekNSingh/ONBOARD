@@ -3,7 +3,7 @@ import themeReducer from "../features/shared/state/theme.slice";
 import authReducer from "../features/auth/state/auth.slice"
 import dashboardReducer from "../features/dashboard/state/dashboard.slice";
 import leaveReducer from "../features/leaves/state/leave.slice";
-
+import userReducer from "../features/users/state/user.slice";
 
 export const store = configureStore({
   reducer: {
@@ -11,5 +11,6 @@ export const store = configureStore({
     auth:authReducer,
     dashboard: dashboardReducer,
     leaves: leaveReducer,
+    users: userReducer,
     },
 });

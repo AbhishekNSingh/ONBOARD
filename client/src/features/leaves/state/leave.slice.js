@@ -1,5 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getMyLeaves, createLeave } from "../services/leave.api";
+import {
+  getMyLeaves,
+  createLeave,
+  getPendingLeaves,
+  decideLeaveRequest,
+} from "../services/leave.api";
 import { logout } from "../../auth/state/auth.slice";
 import { getErrorMessage } from "../../shared/utils/getErrorMessage";
 
@@ -14,7 +19,7 @@ export const fetchMyLeaves = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
-  }
+  },
 );
 
 export const submitLeave = createAsyncThunk(
@@ -26,7 +31,31 @@ export const submitLeave = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
-  }
+  },
+);
+
+export const fetchPendingLeaves = createAsyncThunk(
+  "leaves/fetchPendingLeaves",
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await getPendingLeaves();
+      return data.leaves;
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  },
+);
+
+export const decideLeave = createAsyncThunk(
+  "leaves/decideLeave",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      await decideLeaveRequest(id, status);
+      return id; // the page only needs to know which row to remove
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  },
 );
 
 /* ---------- slice ---------- */
@@ -37,6 +66,12 @@ const initialState = {
   error: null,
   submitting: false,
   submitError: null,
+
+  pendingLeaves: [],
+  pendingLoading: false,
+  pendingError: null,
+  decidingId: null,
+  decideError: null,
 };
 
 const leaveSlice = createSlice({
@@ -45,6 +80,9 @@ const leaveSlice = createSlice({
   reducers: {
     clearSubmitError: (state) => {
       state.submitError = null;
+    },
+    clearDecideError: (state) => {
+      state.decideError = null;
     },
   },
   extraReducers: (builder) => {
@@ -76,6 +114,35 @@ const leaveSlice = createSlice({
         state.submitting = false;
         state.submitError = action.payload;
       })
+      /* --- the inbox list --- */
+      .addCase(fetchPendingLeaves.pending, (state) => {
+        state.pendingLoading = true;
+        state.pendingError = null;
+      })
+      .addCase(fetchPendingLeaves.fulfilled, (state, action) => {
+        state.pendingLoading = false;
+        state.pendingLeaves = action.payload;
+      })
+      .addCase(fetchPendingLeaves.rejected, (state, action) => {
+        state.pendingLoading = false;
+        state.pendingError = action.payload;
+      })
+
+      /* --- approving or rejecting one request --- */
+      .addCase(decideLeave.pending, (state, action) => {
+        state.decidingId = action.meta.arg.id; // which row is busy
+        state.decideError = null;
+      })
+      .addCase(decideLeave.fulfilled, (state, action) => {
+        state.decidingId = null;
+        state.pendingLeaves = state.pendingLeaves.filter(
+          (leave) => leave._id !== action.payload,
+        );
+      })
+      .addCase(decideLeave.rejected, (state, action) => {
+        state.decidingId = null;
+        state.decideError = action.payload;
+      })
 
       /* --- wipe everything when someone logs out --- */
       .addCase(logout.fulfilled, () => initialState)
@@ -83,5 +150,5 @@ const leaveSlice = createSlice({
   },
 });
 
-export const { clearSubmitError } = leaveSlice.actions;
+export const { clearSubmitError, clearDecideError } = leaveSlice.actions;
 export default leaveSlice.reducer;

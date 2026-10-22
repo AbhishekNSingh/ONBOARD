@@ -5,10 +5,12 @@ import Input from "../../shared/components/Input";
 import Textarea from "../../shared/components/Textarea";
 import Button from "../../shared/components/Button";
 import { todayString } from "../../shared/utils/format";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 const LeaveForm = ({ onSuccess, onCancel }) => {
   const { submitting, submitError, requestLeave, resetSubmitError } = useLeaves();
-
+  const { user } = useAuth();
+  const reviewer = user?.role === "manager" ? "An admin" : "Your manager";
   const [form, setForm] = useState({ fromDate: "", toDate: "", reason: "" });
   const [fieldError, setFieldError] = useState("");
 
@@ -47,7 +49,7 @@ const LeaveForm = ({ onSuccess, onCancel }) => {
     <Card>
       <h2 className="text-base font-semibold text-ink">Request leave</h2>
       <p className="mt-1 text-sm text-ink-muted">
-        Your manager will review it and you'll see the decision here.
+        {reviewer} will review it and you'll see the decision here.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-5">
