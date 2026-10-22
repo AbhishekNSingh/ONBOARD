@@ -12,7 +12,7 @@ import {
 export const useAuth = () => {
     const dispatch = useDispatch();
 
-    const {user,loading,isChecking,error} = useSelector((state) => state.auth);
+    const {user,loading,isChecking,error, serverError} = useSelector((state) => state.auth);
     
 
     const handleLogin = useCallback(
@@ -47,6 +47,7 @@ export const useAuth = () => {
     loading,
     isChecking,
     error,
+    serverError,
     handleLogin,
     handleRegister, 
     handleLogout, 

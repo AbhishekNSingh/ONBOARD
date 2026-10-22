@@ -2,26 +2,32 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { roleHome } from "../utils/roleHome";
 import PageLoader from "../../shared/components/PageLoader";
+import ConnectionError from "../../shared/components/ConnectionError";
 
 const Protected = ({ roles }) => {
-  const { user, isChecking } = useAuth();
+  const { user, isChecking, serverError, checkAuth } = useAuth();
 
   // 1. still asking the backend who you are
   if (isChecking) {
     return <PageLoader />;
   }
 
-  // 2. nobody is logged in
+  // 2. we don't know who you are, and the server isn't answering
+  if (!user && serverError) {
+    return <ConnectionError onRetry={checkAuth} />;
+  }
+
+  // 3. the server answered: nobody is logged in
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // 3. logged in, but this role isn't allowed here
+  // 4. logged in, but this role isn't allowed here
   if (roles && !roles.includes(user.role)) {
     return <Navigate to={roleHome[user.role]} replace />;
   }
 
-  // 4. all good: show the child page
+  // 5. all good
   return <Outlet />;
 };
 

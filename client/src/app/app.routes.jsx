@@ -7,6 +7,8 @@ import ComponentPreview from "../features/shared/pages/ComponentPreview";
 import EmployeeDashboard from "../features/dashboard/pages/EmployeeDashboard";
 import ManagerDashboard from "../features/dashboard/pages/ManagerDashboard";
 import AdminDashboard from "../features/dashboard/pages/AdminDashboard";
+import LeavesPage from "../features/leaves/pages/LeavesPage";
+
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/login" replace /> },
@@ -19,7 +21,9 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [{ path: "/employee", element: <EmployeeDashboard /> },
+          { path: "/employee/leaves", element: <LeavesPage /> },
         { path: "/employee/preview", element: <ComponentPreview /> },
+
 
         ],
       },
@@ -31,7 +35,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppLayout />,
-        children: [{ path: "/manager", element: <ManagerDashboard /> }],
+        children: [
+          { path: "/manager", element: <ManagerDashboard /> }
+        ],
       },
     ],
   },

@@ -6,8 +6,6 @@ import {
   getCurrentUser,
 } from "../services/auth.api";
 
-
-
 const getErrorMessage = (err) => {
   if (!err.response) {
     return "Can't reach the server. Check your connection and try again.";
@@ -22,9 +20,6 @@ const getErrorMessage = (err) => {
   return "Something went wrong. Please try again.";
 };
 
-
-
-
 export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
@@ -32,12 +27,13 @@ export const fetchCurrentUser = createAsyncThunk(
       const data = await getCurrentUser();
       return data.user;
     } catch (err) {
-      return rejectWithValue(getErrorMessage(err));
+      return rejectWithValue({
+        status: err.response?.status ?? null, // null means no response at all
+        message: getErrorMessage(err),
+      });
     }
   },
 );
-
-
 
 export const login = createAsyncThunk(
   "auth/login",
@@ -51,9 +47,6 @@ export const login = createAsyncThunk(
   },
 );
 
-
-
-
 export const register = createAsyncThunk(
   "auth/register",
   async (formData, { rejectWithValue }) => {
@@ -66,9 +59,6 @@ export const register = createAsyncThunk(
   },
 );
 
-
-
-
 export const logout = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
@@ -80,10 +70,6 @@ export const logout = createAsyncThunk(
   },
 );
 
-
-
-
-
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -91,6 +77,7 @@ const authSlice = createSlice({
     loading: false,
     isChecking: true,
     error: null,
+    serverError: false,
   },
   reducers: {
     clearError: (state) => {
@@ -103,10 +90,18 @@ const authSlice = createSlice({
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.user = action.payload;
         state.isChecking = false;
+        state.serverError = false;
       })
-      .addCase(fetchCurrentUser.rejected, (state) => {
-        state.user = null;
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.isChecking = false;
+
+        if (action.payload?.status === 401) {
+           
+          state.user = null;
+          state.serverError = false;
+        } else {
+          state.serverError = true;
+        }
       })
 
       /* --- login --- */
