@@ -140,3 +140,30 @@ export const setBaseSalary = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+export const removeManager = async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid id" });
+    }
+
+    const employee = await userModel.findById(req.params.id);
+    if (!employee || employee.role !== "employee") {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    if (!employee.manager) {
+      return res.status(400).json({ message: "Employee has no manager" });
+    }
+
+    employee.manager = undefined;
+    await employee.save();
+
+    return res.status(200).json({
+      message: `${employee.name} no longer has a manager`,
+      success: true,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};

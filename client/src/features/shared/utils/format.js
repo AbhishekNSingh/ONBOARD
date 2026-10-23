@@ -36,3 +36,16 @@ export const todayString = () => {
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
   return d.toISOString().slice(0, 10);
 };
+
+
+export const currentMonthString = () => todayString().slice(0, 7);
+
+// "2026-10-20T10:30:00.000Z" → "20 Oct 2026"
+export const formatISODate = (iso) =>
+  iso
+    ? new Date(iso).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "";

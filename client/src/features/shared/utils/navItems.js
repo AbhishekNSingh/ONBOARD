@@ -20,6 +20,7 @@ export const navItems = {
   manager: [
     { label: "Dashboard", to: "/manager", icon: LayoutDashboard },
     { label: "My team", to: "/manager/team", icon: Users },
+    { label: "Attendance", to: "/manager/attendance", icon: CalendarCheck },
     { label: "Leave inbox", to: "/manager/leaves", icon: Inbox },
     { label: "My leaves", to: "/manager/my-leaves", icon: PlaneTakeoff },
     { label: "Payroll", to: "/manager/payroll", icon: Wallet },
