@@ -4,7 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import { config } from "./config/config.js";
-
+import mongoose from "mongoose";
 
 
 
@@ -32,6 +32,20 @@ app.use(morgan("dev"));
 
 
 // ------  Routes    --------
+
+
+app.get("/api/health", (req, res) => {
+  const dbReady = mongoose.connection.readyState === 1; // 1 means connected
+  res.status(dbReady ? 200 : 503).json({
+    status: dbReady ? "ok" : "db_down",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+
+
+
+
 app.use("/api/auth",authRouter);
 app.use("/api/users",userRouter);
 app.use("/api/attendance",attendanceRouter)

@@ -3,45 +3,49 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCurrentUser,
   login,
+  googleLogin,
   register,
   logout,
   clearError,
 } from "../state/auth.slice";
 
-
 export const useAuth = () => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const { user, loading, isChecking, error, serverError } = useSelector(
+    (state) => state.auth
+  );
 
-    const {user,loading,isChecking,error, serverError} = useSelector((state) => state.auth);
-    
+  const handleLogin = useCallback(
+    (credentials) => dispatch(login(credentials)).unwrap(),
+    [dispatch]
+  );
 
-    const handleLogin = useCallback(
-        (credentials) => dispatch(login(credentials)).unwrap(),
-        [dispatch]
-    )
+  const handleGoogleLogin = useCallback(
+    (credential) => dispatch(googleLogin(credential)).unwrap(),
+    [dispatch]
+  );
 
-    const handleRegister = useCallback(
-        (formData) => dispatch(register(formData)).unwrap(),
-        [dispatch]
-    )
+  const handleRegister = useCallback(
+    (formData) => dispatch(register(formData)).unwrap(),
+    [dispatch]
+  );
 
-    const handleLogout = useCallback(
-        () => dispatch(logout()).unwrap(),
-        [dispatch]
-    )
-    const checkAuth = useCallback(async () => {
-  try {
-    await dispatch(fetchCurrentUser()).unwrap();
-  } catch {
-    // 
-  }
-}, [dispatch]);
-    const resetError = useCallback(
-        () => dispatch(clearError()),
-        [dispatch]
-    )
+  const handleLogout = useCallback(
+    () => dispatch(logout()).unwrap(),
+    [dispatch]
+  );
 
-    return {
+  const checkAuth = useCallback(async () => {
+    try {
+      await dispatch(fetchCurrentUser()).unwrap();
+    } catch {
+      // being logged out is normal, nothing to do
+    }
+  }, [dispatch]);
+
+  const resetError = useCallback(() => dispatch(clearError()), [dispatch]);
+
+  return {
     user,
     isAuthenticated: Boolean(user),
     loading,
@@ -49,10 +53,10 @@ export const useAuth = () => {
     error,
     serverError,
     handleLogin,
-    handleRegister, 
-    handleLogout, 
-    checkAuth, 
-    resetError
+    handleGoogleLogin,
+    handleRegister,
+    handleLogout,
+    checkAuth,
+    resetError,
   };
-
-}
+};

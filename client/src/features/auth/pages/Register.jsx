@@ -3,6 +3,8 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { roleHome } from "../utils/roleHome";
 import AuthLayout from "../components/AuthLayout";
+import GoogleButton from "../components/GoogleButton";
+import OrDivider from "../components/OrDivider";
 import Input from "../../shared/components/Input";
 import Button from "../../shared/components/Button";
 
@@ -99,6 +101,9 @@ const Register = () => {
         <Button type="submit" loading={loading} className="mt-1">
           Create account
         </Button>
+
+        <OrDivider />
+        <GoogleButton text="signup_with" />
 
         <p className="text-center text-sm text-ink-muted">
           Already have an account?{" "}

@@ -2,23 +2,13 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   registerUser,
   loginUser,
+  googleLoginUser,
   logoutUser,
   getCurrentUser,
 } from "../services/auth.api";
+import { getErrorMessage } from "../../shared/utils/getErrorMessage";
 
-const getErrorMessage = (err) => {
-  if (!err.response) {
-    return "Can't reach the server. Check your connection and try again.";
-  }
-
-  const data = err.response.data;
-
-  if (data?.message) return data.message;
-  if (Array.isArray(data?.errors) && data.errors.length > 0)
-    return data.errors[0].msg;
-
-  return "Something went wrong. Please try again.";
-};
+/* ---------- thunks ---------- */
 
 export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
@@ -28,11 +18,11 @@ export const fetchCurrentUser = createAsyncThunk(
       return data.user;
     } catch (err) {
       return rejectWithValue({
-        status: err.response?.status ?? null, // null means no response at all
+        status: err.response?.status ?? null, // null means the server never answered
         message: getErrorMessage(err),
       });
     }
-  },
+  }
 );
 
 export const login = createAsyncThunk(
@@ -44,7 +34,19 @@ export const login = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
-  },
+  }
+);
+
+export const googleLogin = createAsyncThunk(
+  "auth/googleLogin",
+  async (credential, { rejectWithValue }) => {
+    try {
+      const data = await googleLoginUser(credential);
+      return data.user;
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  }
 );
 
 export const register = createAsyncThunk(
@@ -56,7 +58,7 @@ export const register = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
-  },
+  }
 );
 
 export const logout = createAsyncThunk(
@@ -67,8 +69,10 @@ export const logout = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
-  },
+  }
 );
+
+/* ---------- slice ---------- */
 
 const authSlice = createSlice({
   name: "auth",
@@ -86,7 +90,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      /* --- check who is logged in (runs on page load) --- */
+      /* --- who is logged in (runs on page load) --- */
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.user = action.payload;
         state.isChecking = false;
@@ -96,46 +100,40 @@ const authSlice = createSlice({
         state.isChecking = false;
 
         if (action.payload?.status === 401) {
-           
+          // the server answered: you are not logged in
           state.user = null;
           state.serverError = false;
         } else {
+          // no answer from the server: don't log anyone out
           state.serverError = true;
         }
-      })
-
-      /* --- login --- */
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      /* --- register --- */
-      .addCase(register.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(register.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload;
-      })
-      .addCase(register.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
       })
 
       /* --- logout --- */
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
+      })
+      .addCase(logout.rejected, (state) => {
+        state.user = null;
       });
+
+    // login, Google login and register all behave the same way
+    [login, googleLogin, register].forEach((thunk) => {
+      builder
+        .addCase(thunk.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(thunk.fulfilled, (state, action) => {
+          state.loading = false;
+          state.user = action.payload;
+          state.serverError = false;
+        })
+        .addCase(thunk.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        });
+    });
   },
 });
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAttendance } from "../../attendance/hooks/useAttendance";
 import { usePayroll } from "../hooks/usePayroll";
+import { useRazorpayPayment } from "../hooks/useRazorpayPayment";
 import PageHeader from "../../shared/components/PageHeader";
 import Select from "../../shared/components/Select";
 import Input from "../../shared/components/Input";
@@ -22,6 +23,7 @@ const ManagerPayroll = () => {
     addAdvance,
     addPayment,
   } = usePayroll();
+  const { pay } = useRazorpayPayment();
 
   const [employeeId, setEmployeeId] = useState("");
   const [month, setMonth] = useState(currentMonthString());
@@ -37,6 +39,10 @@ const ManagerPayroll = () => {
   const summary = selected.summary;
   const hasSalary = Boolean(summary);
   const firstLoad = selectedLoading && !summary && selected.payments.length === 0;
+
+  const dueText = hasSalary
+    ? `Up to ${formatCurrency(summary.due)} is due. To pay more, give a bonus first.`
+    : "Available once a salary is set.";
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,7 +114,7 @@ const ManagerPayroll = () => {
             </p>
           )}
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 lg:grid-cols-2">
             <AmountForm
               title="Give a bonus"
               description="Adds to this month's pay."
@@ -129,14 +135,18 @@ const ManagerPayroll = () => {
               }
             />
             <AmountForm
-              title="Make a payment"
-              description={
-                hasSalary
-                  ? `Up to ${formatCurrency(summary.due)} is due. To pay more, give a bonus first.`
-                  : "Available once a salary is set."
-              }
+              title="Pay with Razorpay"
+              description={`${dueText} Test mode: no real money moves.`}
               noteLabel="Note (optional)"
-              submitLabel="Pay now"
+              submitLabel="Pay with Razorpay"
+              disabled={!hasSalary}
+              onSubmit={(amount, note) => pay({ employeeId, month, amount, note })}
+            />
+            <AmountForm
+              title="Record an offline payment"
+              description="For cash or a bank transfer made outside the app."
+              noteLabel="Note (optional)"
+              submitLabel="Record payment"
               disabled={!hasSalary}
               onSubmit={(amount, note) =>
                 addPayment({ employeeId, month, amount, note })

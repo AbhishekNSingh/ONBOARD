@@ -15,3 +15,13 @@ export const getEmployeePayments = (id, month) => get(`/payments/employee/${id}`
 export const postBonus = async (body) => (await api.post("/bonuses", body)).data;
 export const postAdvance = async (body) => (await api.post("/advances", body)).data;
 export const postPayment = async (body) => (await api.post("/payments", body)).data;
+
+// Razorpay
+export const createPaymentOrder = async (body) =>
+  (await api.post("/payments/order", body)).data;
+
+export const verifyPaymentOrder = async (body) =>
+  (await api.post("/payments/verify", body)).data;
+
+export const cancelPaymentOrder = async (orderId) =>
+  (await api.post("/payments/cancel", { razorpay_order_id: orderId })).data;
